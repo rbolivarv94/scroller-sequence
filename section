@@ -1,0 +1,209 @@
+{% schema %}
+{
+  "name": "scroller",
+          "presets":[
+    {
+        "name":"scroller",
+        "category":"custom"
+    }
+            ],
+  "settings": [
+            {
+  "type": "number",
+  "id": "lengthHeight",
+  "label": "Scroll Length(Recomended: totalImages*22) "
+},
+    {
+  "type": "number",
+  "id": "totalImages",
+  "label": "Total number of images on sequence",
+  "default": 449
+},
+        {
+    "type": "text",
+    "id": "seq-name",
+    "label": "Image Sequencer commonName",
+    "default": "TEST"
+  }
+  ],
+    "blocks": [
+  {
+    "type": "infoBlock",
+    "name": "infoBlock",
+    "settings": [
+                    {
+        "type": "number",
+        "id": "position-inner-y",
+        "label": "Position Y to show(px)"
+      },
+                            {
+        "type": "number",
+        "id": "position-inner-x",
+        "label": "Position X to show(%)"
+      },
+      {
+        "type": "html",
+        "label": "html code",
+        "id": "info-inner"
+      },
+        {
+      "type": "number",
+      "id": "stickyHeight",
+      "label": "how long(px) should stay at the top?",
+      "default": 600
+    }
+    ]
+  }
+  ]
+}
+{% endschema %}
+
+
+<div
+  id="background"
+  style="height: {{ section.settings.lengthHeight }}px;"
+></div>
+{% for block in section.blocks %}
+  {% case block.type %}
+    {% when 'infoBlock' %}
+      <div
+        class="info-block"
+        data-stickyheight="{{ block.settings.stickyHeight }}"
+        style="top: {{ block.settings.position-inner-y }}px; left: {{ block.settings.position-inner-x }}%; position: absolute; z-index: 1;"
+      >
+        <div>{{ block.settings.info-inner }}</div>
+      </div>
+  {% endcase %}
+{% endfor %}
+
+<div class="fixedTop">
+  <div id="image-scroll" style="height: {{ section.settings.lengthHeight }}px; position: relative;">
+     {% for i in (0..9) %}
+      <img
+        class="scroll-image"
+        id="scroll-image-{{ i }}"
+        src="{{  section.settings.seq-name  | append: '_0000' | append: i | append: '.jpg' | asset_url }}"
+        style="position: absolute; top: 0; {% unless i == 0 %}display: none;{% endunless %}"
+
+      >
+    {% endfor %}
+    {% for i in (10..99) %}
+      <img
+        class="scroll-image"
+        id="scroll-image-{{ i }}"
+        src="{{ section.settings.seq-name  | append: '_000' | append: i | append: '.jpg' | asset_url }}"
+        style="position: absolute; top: 0; {% unless i == 0 %}display: none;{% endunless %}"
+
+      >
+    {% endfor %}
+    {% for i in (100.. section.settings.totalImages ) %}
+      <img
+        class="scroll-image"
+        id="scroll-image-{{ i }}"
+        src="{{ section.settings.seq-name  | append: '_00' | append: i | append: '.jpg' | asset_url }}"
+        style="position: absolute; top: 0; {% unless i == 0 %}display: none;{% endunless %}"
+
+      >
+    {% endfor %}
+  </div>
+</div>
+<div style="height: 100vh;"></div>
+<style>
+  .fixedTop {
+      position: fixed;
+      top: 7rem;
+      width: 100%;
+  }
+  #background {
+      background-repeat: no-repeat;
+      background-size: cover;
+  }
+  .info-block {
+      position: absolute;
+      transition: transform 0.3s ease;
+  }
+  div#image-scroll {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+  @media (min-width: 1440px) {
+    .scroll-image{
+      width: 100%;
+    }
+  }
+  @media (max-width: 1439px) {
+    .scroll-image{
+      height: 90vh;
+    }
+  }
+</style>
+
+<script>
+    var container = document.getElementById('image-scroll');
+    var images = Array.from(container.getElementsByTagName('img'));
+    var isScrolling = false;
+
+    // Create a new IntersectionObserver instance
+    var observer = new IntersectionObserver(function(entries) {
+      // If the container becomes visible (intersecting)
+      if (entries[0].isIntersecting && !isScrolling) {
+        isScrolling = true;
+        window.addEventListener('scroll', scrollHandler);
+      } else {
+        window.removeEventListener('scroll', scrollHandler);
+        isScrolling = false;
+      }
+    });
+
+    // The function that handles the scrolling
+    function scrollHandler() {
+  var scrollPosition = Math.max(0, window.scrollY - container.offsetTop);
+      var containerBottom = container.offsetTop + container.offsetHeight;
+      var progress = Math.max(0, Math.min(1, (scrollPosition - container.offsetTop) / (containerBottom - container.offsetTop)));
+
+      var imageIndex = Math.min(Math.round(progress * (images.length - 1)), images.length - 1);
+
+      images.forEach(function(img, index) {
+        img.style.display = index === imageIndex ? 'block' : 'none';
+      });
+    }
+
+    // Start observing the container
+    observer.observe(container);
+
+
+   window.onload = function() {
+    var infoBlocks = document.getElementsByClassName('info-block');
+
+    // Capture initial block positions
+    var blockPositions = Array.prototype.map.call(infoBlocks, function(block) {
+      return block.offsetTop;
+    });
+
+    // Info blocks scroll event
+    function stickyBlocksHandler() {
+      var scrollPosition = window.scrollY;
+
+      Array.prototype.forEach.call(infoBlocks, function(block, index) {
+        var stickyHeight = parseInt(block.dataset.stickyheight);
+        var blockTop = blockPositions[index] - 100; // Adjust for the 100px header
+        var unstickPosition = blockTop + stickyHeight; // Add the sticky height
+
+        if (scrollPosition >= blockTop && scrollPosition <= unstickPosition) {
+          block.style.position = 'fixed';
+          block.style.top = '100px'; // keep it under the header
+        } else if (scrollPosition > unstickPosition) {
+          block.style.position = 'absolute';
+          block.style.top = (unstickPosition + 100) + 'px'; // position where the block unsticks and keeps moving
+        } else if (scrollPosition < blockTop) {
+          block.style.position = 'absolute';
+          block.style.top = blockPositions[index] + 'px'; // reset position when scrolling back up
+        }
+      });
+    }
+
+    // Listen to the scroll event
+    window.addEventListener('scroll', stickyBlocksHandler);
+  }
+</script>
