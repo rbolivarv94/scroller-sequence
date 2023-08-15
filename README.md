@@ -1,4 +1,5 @@
-<img width="260" alt="Screenshot 2023-08-15 at 12 37 26 PM" src="https://github.com/rbolivarv94/scroller-sequence/assets/72158166/2c165a5c-71aa-40c0-9a3d-9e8afbfa5ba3">
+<img width="260" alt="Screenshot 2023-08-15 at 12 37 26 PM" src="https://github.com/rbolivarv94/scroller-sequence/assets/72158166/06ba0e6b-93d7-46a5-9f81-acd6701111ec">
+
 # scroller-sequence
 The scroller component is designed to create a scrolling visual experience with a sequence of images and sticky information blocks. 
 This documentation provides an overview of the component's structure, settings, and usage.
@@ -70,6 +71,11 @@ Copy code
     }
   ]
 }
+
+<img width="260" alt="Screenshot 2023-08-15 at 12 37 26 PM" src="https://github.com/rbolivarv94/scroller-sequence/assets/72158166/2c165a5c-71aa-40c0-9a3d-9e8afbfa5ba3">
+![Uploading Screenshot 2023-08-15 at 12.37.18 PM.png…]()
+![Uploading Screenshot 2023-08-15 at 12.37.12 PM.png…]()
+
 HTML Structure
 The scroller component's HTML structure consists of multiple images and information blocks. The component generates the images and applies the necessary styles to create the scrolling effect.
 
@@ -155,5 +161,4 @@ observer.observe(container);
 window.onload = function() {
   // Sticky information blocks logic
 };
-This documentation provides an overview of the scroller component's structure, settings, and functionality. You can customize and integrate this component into your projects to create engaging scrolling experiences with images and sticky information blocks.![Uploading Screenshot 2023-08-15 at 12.37.18 PM.png…]()
-![Uploading Screenshot 2023-08-15 at 12.37.12 PM.png…]()
+This documentation provides an overview of the scroller component's structure, settings, and functionality. You can customize and integrate this component into your projects to create engaging scrolling experiences with images and sticky information blocks.
